@@ -1,5 +1,5 @@
 <?php
-
+namespace Miner;
   /**
    * A dead simple PHP class for building SQL statements. No manual string
    * concatenation necessary.
