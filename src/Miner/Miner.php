@@ -282,7 +282,7 @@ namespace Miner;
      * @param  bool $autoQuote optional auto-escape values, default true
      * @return Miner
      */
-    public function __construct(PDO $PdoConnection = null, $autoQuote = true) {
+    public function __construct(\PDO $PdoConnection = null, $autoQuote = true) {
       $this->option = array();
       $this->select = array();
       $this->delete = array();
@@ -309,7 +309,7 @@ namespace Miner;
      * @param  PDO|null $PdoConnection optional PDO database connection
      * @return Miner
      */
-    public function setPdoConnection(PDO $PdoConnection = null) {
+    public function setPdoConnection(\PDO $PdoConnection = null) {
       $this->PdoConnection = $PdoConnection;
 
       return $this;

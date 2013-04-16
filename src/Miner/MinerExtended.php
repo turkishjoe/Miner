@@ -20,6 +20,6 @@ class MinerExtended extends Miner{
     }
 
     public function fetchAll(){
-        return $this->execute()->fetchAll(PDO::FETCH_CLASS);
+        return $this->execute()->fetchAll(\PDO::FETCH_CLASS);
     }
 }
