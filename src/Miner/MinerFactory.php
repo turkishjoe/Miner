@@ -12,7 +12,7 @@ class MinerFactory{
     /** @var \PDO */
     private $_pdo = null;
 
-    public function __construct($pdo){
+    public function __construct(\PDO $pdo){
         $this->_pdo = $pdo;
     }
 
