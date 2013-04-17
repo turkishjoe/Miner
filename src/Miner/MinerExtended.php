@@ -15,11 +15,15 @@ class MinerExtended extends Miner{
         $this->setPdoConnection($pdo);
     }
 
-    public function fetchAllAsArray(){
-        return $this->execute()->fetchAll();
+    public function fetchAllAsObject(){
+        return $this->execute()->fetchAll(\PDO::FETCH_CLASS);
     }
 
     public function fetchAll(){
-        return $this->execute()->fetchAll(\PDO::FETCH_CLASS);
+        return $this->execute()->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function fetchOne(){
+        return $this->execute()->fetch(\PDO::FETCH_ASSOC);
     }
 }
