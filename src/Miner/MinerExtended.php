@@ -26,4 +26,9 @@ class MinerExtended extends Miner{
     public function fetchOne(){
         return $this->execute()->fetch(\PDO::FETCH_ASSOC);
     }
+
+    public function getById($table,$id){
+
+        return $this->select('*')->from($table)->where('id',$id)->execute()->fetch(\PDO::FETCH_ASSOC);
+    }
 }
