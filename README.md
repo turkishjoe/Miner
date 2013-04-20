@@ -13,7 +13,7 @@ Developed by [Justin Stayton](http://twitter.com/jstayton) while at
 Requirements
 ------------
 
-*   PHP >= 5.1.0
+*   PHP >= 5.3.1
 
 Installation
 ------------
@@ -24,11 +24,13 @@ The recommended installation method is through
 [Composer](http://getcomposer.org/), a dependency manager for PHP. Just add
 `jstayton/miner` to your project's `composer.json` file:
 
+``` json
     {
         "require": {
             "jstayton/miner": "*"
         }
     }
+```
 
 [More details](http://packagist.org/packages/jstayton/miner) can be found over
 at [Packagist](http://packagist.org).
@@ -44,46 +46,61 @@ Getting Started
 Composing SQL with Miner is very similar to writing it by hand, as much of the
 syntax maps directly to methods:
 
-    $Miner = new Miner();
-    $Miner->select('*')
+``` php
+    $miner = new Miner();
+    $miner->select('*')
           ->from('shows')
           ->innerJoin('episodes', 'show_id')
           ->where('shows.network_id', 12)
           ->orderBy('episodes.aired_on', Miner::ORDER_BY_DESC)
           ->limit(20);
+```
 
 Now that the statement is built,
 
-    $Miner->getStatement();
+``` php
+    $miner->getStatement();
+```
 
 returns the full SQL string with placeholders (?), and
 
-    $Miner->getPlaceholderValues();
+``` php
+    $miner->getPlaceholderValues();
+```
 
 returns the array of placeholder values that can then be passed to your
 database connection or abstraction layer of choice. Or, if you'd prefer it all
 at once, you can get the SQL string with values already safely quoted:
 
-    $Miner->getStatement(false);
+``` php
+    $miner->getStatement(false);
+```
 
 If you're using PDO, however, Miner makes executing the statement even easier:
 
-    $PDOStatement = $Miner->execute();
+``` php
+    $PDOStatement = $miner->execute();
+```
 
 Miner works directly with your PDO connection, which can be passed during
 creation of the Miner object
 
-    $Miner = new Miner($PDO);
+``` php
+    $miner = new Miner($PDO);
+```
 
 or after
 
-    $Miner->setPdoConnection($PDO);
+``` php
+    $miner->setPdoConnection($PDO);
+```
 
 Usage
 -----
 
 ### SELECT
 
+``` sql
     SELECT *
     FROM shows
     INNER JOIN episodes
@@ -91,76 +108,139 @@ Usage
     WHERE shows.network_id = 12
     ORDER BY episodes.aired_on DESC
     LIMIT 20
+```
 
 With Miner:
 
-    $Miner->select('*')
+``` php
+    $miner->select('*')
           ->from('shows')
           ->innerJoin('episodes', 'show_id')
           ->where('shows.network_id', 12)
           ->orderBy('episodes.aired_on', Miner::ORDER_BY_DESC)
           ->limit(20);
+```
+
+``` php
+    $miner->select('*'); // all columns select
+    $miner->select(); // all columns select
+    $miner->select(array('id', 'name', 'description')); // select only this columns
+    $miner->select(array('id' => 'myId', 'name' => 'myName', 'description' => 'myDescription')); // select with aliases
+```
+
+``` php
+    $record  = $miner->find('show', 1); // SELECT * FROM show WHERE id = 1
+    $records = $miner->find('show', array(1, 2, 3)); // SELECT * FROM show WHERE id IN (1, 2, 3)
+    $records = $miner->find('show', array('name' => 'test', 'network_id' => 12); // SELECT * FROM show
+                                                                                // WHERE name = 'test' AND network_id = 12
+    $records = $miner->find('show', array(1, 2, 3), array('id')); // SELECT id FROM show WHERE id IN (1, 2, 3)
+```
+
+``` php
+    $records = $miner->select()
+          ->from('shows')
+          ->limit(20)
+          ->fetchAll();
+
+    $records = $miner->select()
+          ->from('shows')
+          ->where('id', 1)
+          ->fetchOne();
+```
 
 ### INSERT
 
+``` sql
     INSERT HIGH_PRIORITY shows
     SET network_id = 13,
         name = 'Freaks & Geeks',
         air_day = 'Tuesday'
+```
 
 With Miner:
 
-    $Miner->insert('shows')
+``` php
+    $miner->insert('shows')
           ->option('HIGH_PRIORITY')
           ->set('network_id', 13)
           ->set('name', 'Freaks & Geeks')
           ->set('air_day', 'Tuesday');
+```
+
+OR
+
+``` php
+    $miner->insert('shows')
+          ->option('HIGH_PRIORITY')
+          ->set(array(
+              'network_id' => 13,
+              'name' => 'Freaks & Geeks',
+              'air_day' => 'Tuesday'
+          ));
+```
+
+``` php
+    $miner->set('id', 1); // set id value
+    $miner->set(array('id' => 1, 'name' => 'test')); // set id and name values
+```
 
 ### REPLACE
 
+``` sql
     REPLACE shows
     SET network_id = 13,
         name = 'Freaks & Geeks',
         air_day = 'Monday'
+```
 
 With Miner:
 
-    $Miner->replace('shows')
+``` php
+    $miner->replace('shows')
           ->set('network_id', 13)
           ->set('name', 'Freaks & Geeks')
           ->set('air_day', 'Monday');
+```
 
 ### UPDATE
 
+``` sql
     UPDATE episodes
     SET aired_on = '2012-06-25'
     WHERE show_id = 12
       OR (name = 'Girlfriends and Boyfriends'
             AND air_day != 'Monday')
+```
 
 With Miner:
 
-    $Miner->update('episodes')
+``` php
+    $miner->update('episodes')
           ->set('aired_on', '2012-06-25')
           ->where('show_id', 12)
           ->openWhere(Miner::LOGICAL_OR)
           ->where('name', 'Girlfriends and Boyfriends')
           ->where('air_day', 'Monday', Miner::NOT_EQUALS)
           ->closeWhere();
+```
 
 ### DELETE
 
+``` sql
     DELETE
     FROM shows
     WHERE show_id IN (12, 15, 20)
     LIMIT 3
+```
 
 With Miner:
 
-    $Miner->delete()
+``` php
+    $miner->delete()
           ->from('shows')
           ->whereIn('show_id', array(12, 15, 20))
           ->limit(3);
+```
 
 Methods
 -------
@@ -170,6 +250,9 @@ Methods
 ### SELECT
 
 *   [select](http://jstayton.github.com/Miner/classes/Miner.html#select)
+*   [find](http://jstayton.github.com/Miner/classes/Miner.html#find)
+*   [fetchAll](http://jstayton.github.com/Miner/classes/Miner.html#fetchAll)
+*   [fetchOne](http://jstayton.github.com/Miner/classes/Miner.html#fetchOne)
 *   [getSelectString](http://jstayton.github.com/Miner/classes/Miner.html#getSelectString)
 *   [mergeSelectInto](http://jstayton.github.com/Miner/classes/Miner.html#mergeSelectInto)
 
