@@ -47,25 +47,25 @@ Composing SQL with Miner is very similar to writing it by hand, as much of the
 syntax maps directly to methods:
 
 ``` php
-    $miner = new Miner();
-    $miner->select('*')
-          ->from('shows')
-          ->innerJoin('episodes', 'show_id')
-          ->where('shows.network_id', 12)
-          ->orderBy('episodes.aired_on', Miner::ORDER_BY_DESC)
-          ->limit(20);
+$miner = new Miner();
+$miner->select('*')
+    ->from('shows')
+    ->innerJoin('episodes', 'show_id')
+    ->where('shows.network_id', 12)
+    ->orderBy('episodes.aired_on', Miner::ORDER_BY_DESC)
+    ->limit(20);
 ```
 
 Now that the statement is built,
 
 ``` php
-    $miner->getStatement();
+$miner->getStatement();
 ```
 
 returns the full SQL string with placeholders (?), and
 
 ``` php
-    $miner->getPlaceholderValues();
+$miner->getPlaceholderValues();
 ```
 
 returns the array of placeholder values that can then be passed to your
@@ -79,20 +79,20 @@ at once, you can get the SQL string with values already safely quoted:
 If you're using PDO, however, Miner makes executing the statement even easier:
 
 ``` php
-    $PDOStatement = $miner->execute();
+$PDOStatement = $miner->execute();
 ```
 
 Miner works directly with your PDO connection, which can be passed during
 creation of the Miner object
 
 ``` php
-    $miner = new Miner($PDO);
+$miner = new Miner($PDO);
 ```
 
 or after
 
 ``` php
-    $miner->setPdoConnection($PDO);
+$miner->setPdoConnection($PDO);
 ```
 
 Usage
@@ -101,133 +101,133 @@ Usage
 ### SELECT
 
 ``` sql
-    SELECT *
-    FROM shows
-    INNER JOIN episodes
-      ON shows.show_id = episodes.show_id
-    WHERE shows.network_id = 12
-    ORDER BY episodes.aired_on DESC
-    LIMIT 20
+SELECT *
+FROM shows
+INNER JOIN episodes
+    ON shows.show_id = episodes.show_id
+WHERE shows.network_id = 12
+ORDER BY episodes.aired_on DESC
+LIMIT 20
 ```
 
 With Miner:
 
 ``` php
-    $miner->select('*')
-          ->from('shows')
-          ->innerJoin('episodes', 'show_id')
-          ->where('shows.network_id', 12)
-          ->orderBy('episodes.aired_on', Miner::ORDER_BY_DESC)
-          ->limit(20);
+$miner->select('*')
+    ->from('shows')
+    ->innerJoin('episodes', 'show_id')
+    ->where('shows.network_id', 12)
+    ->orderBy('episodes.aired_on', Miner::ORDER_BY_DESC)
+    ->limit(20);
 ```
 
 ``` php
-    $miner->select('*'); // all columns select
-    $miner->select(); // all columns select
-    $miner->select(array('id', 'name', 'description')); // select only this columns
-    $miner->select(array('id' => 'myId', 'name' => 'myName', 'description' => 'myDescription')); // select with aliases
+$miner->select('*'); // all columns select
+$miner->select(); // all columns select
+$miner->select(array('id', 'name', 'description')); // select only this columns
+$miner->select(array('id' => 'myId', 'name' => 'myName', 'description' => 'myDescription')); // select with aliases
 ```
 
 ``` php
-    $record  = $miner->find('show', 1); // SELECT * FROM show WHERE id = 1
-    $records = $miner->find('show', array(1, 2, 3)); // SELECT * FROM show WHERE id IN (1, 2, 3)
-    $records = $miner->find('show', array('name' => 'test', 'network_id' => 12); // SELECT * FROM show
-                                                                                // WHERE name = 'test' AND network_id = 12
-    $records = $miner->find('show', array(1, 2, 3), array('id')); // SELECT id FROM show WHERE id IN (1, 2, 3)
+$record  = $miner->find('show', 1); // SELECT * FROM show WHERE id = 1
+$records = $miner->find('show', array(1, 2, 3)); // SELECT * FROM show WHERE id IN (1, 2, 3)
+$records = $miner->find('show', array('name' => 'test', 'network_id' => 12); // SELECT * FROM show
+                                                                            // WHERE name = 'test' AND network_id = 12
+$records = $miner->find('show', array(1, 2, 3), array('episodes')); // SELECT episodes FROM show WHERE id IN (1, 2, 3)
 ```
 
 ``` php
-    $records = $miner->select()
-          ->from('shows')
-          ->limit(20)
-          ->fetchAll();
+$records = $miner->select()
+    ->from('shows')
+    ->limit(20)
+    ->fetchAll();
 
-    $records = $miner->select()
-          ->from('shows')
-          ->where('id', 1)
-          ->fetchOne();
+$records = $miner->select()
+    ->from('shows')
+    ->where('id', 1)
+    ->fetchOne();
 ```
 
 ### INSERT
 
 ``` sql
-    INSERT HIGH_PRIORITY shows
-    SET network_id = 13,
-        name = 'Freaks & Geeks',
-        air_day = 'Tuesday'
+INSERT HIGH_PRIORITY shows
+SET network_id = 13,
+    name = 'Freaks & Geeks',
+    air_day = 'Tuesday'
 ```
 
 With Miner:
 
 ``` php
-    $miner->insert('shows')
-          ->option('HIGH_PRIORITY')
-          ->set('network_id', 13)
-          ->set('name', 'Freaks & Geeks')
-          ->set('air_day', 'Tuesday');
+$miner->insert('shows')
+    ->option('HIGH_PRIORITY')
+    ->set('network_id', 13)
+    ->set('name', 'Freaks & Geeks')
+    ->set('air_day', 'Tuesday');
 ```
 
 OR
 
 ``` php
-    $miner->insert('shows')
-          ->option('HIGH_PRIORITY')
-          ->set(array(
-              'network_id' => 13,
-              'name' => 'Freaks & Geeks',
-              'air_day' => 'Tuesday'
-          ));
+$miner->insert('shows')
+    ->option('HIGH_PRIORITY')
+    ->set(array(
+        'network_id' => 13,
+        'name' => 'Freaks & Geeks',
+        'air_day' => 'Tuesday'
+    ));
 ```
 
 ``` php
-    $miner->set('id', 1); // set id value
-    $miner->set(array('id' => 1, 'name' => 'test')); // set id and name values
+$miner->set('id', 1); // set id value
+$miner->set(array('id' => 1, 'name' => 'test')); // set id and name values
 ```
 
 ### REPLACE
 
 ``` sql
-    REPLACE shows
-    SET network_id = 13,
-        name = 'Freaks & Geeks',
-        air_day = 'Monday'
+REPLACE shows
+SET network_id = 13,
+    name = 'Freaks & Geeks',
+    air_day = 'Monday'
 ```
 
 With Miner:
 
 ``` php
-    $miner->replace('shows')
-          ->set('network_id', 13)
-          ->set('name', 'Freaks & Geeks')
-          ->set('air_day', 'Monday');
+$miner->replace('shows')
+    ->set('network_id', 13)
+    ->set('name', 'Freaks & Geeks')
+    ->set('air_day', 'Monday');
 ```
 
 ### UPDATE
 
 ``` sql
-    UPDATE episodes
-    SET aired_on = '2012-06-25'
-    WHERE show_id = 12
-      OR (name = 'Girlfriends and Boyfriends'
-            AND air_day != 'Monday')
+UPDATE episodes
+SET aired_on = '2012-06-25'
+WHERE show_id = 12
+    OR (name = 'Girlfriends and Boyfriends'
+        AND air_day != 'Monday')
 ```
 
 With Miner:
 
 ``` php
-    $miner->update('episodes')
-          ->set('aired_on', '2012-06-25')
-          ->where('show_id', 12)
-          ->openWhere(Miner::LOGICAL_OR)
-          ->where('name', 'Girlfriends and Boyfriends')
-          ->where('air_day', 'Monday', Miner::NOT_EQUALS)
-          ->closeWhere();
+$miner->update('episodes')
+    ->set('aired_on', '2012-06-25')
+    ->where('show_id', 12)
+    ->openWhere(Miner::LOGICAL_OR)
+    ->where('name', 'Girlfriends and Boyfriends')
+    ->where('air_day', 'Monday', Miner::NOT_EQUALS)
+    ->closeWhere();
 ```
 
 ### DELETE
 
 ``` sql
-    DELETE
+DELETE
     FROM shows
     WHERE show_id IN (12, 15, 20)
     LIMIT 3
@@ -236,10 +236,10 @@ With Miner:
 With Miner:
 
 ``` php
-    $miner->delete()
-          ->from('shows')
-          ->whereIn('show_id', array(12, 15, 20))
-          ->limit(3);
+$miner->delete()
+    ->from('shows')
+    ->whereIn('show_id', array(12, 15, 20))
+    ->limit(3);
 ```
 
 Methods
