@@ -2274,21 +2274,25 @@ class Miner
     /**
      * Fetch all as array
      *
-     * @return mixed
+     * @return array|null
      */
     public function fetchAll()
     {
-        return $this->execute()->fetchAll(\PDO::FETCH_ASSOC);
+        $sth = $this->execute();
+
+        return $sth ? $sth->fetchAll(\PDO::FETCH_ASSOC) : null;
     }
 
     /**
      * Fetch one record as array
      *
-     * @return mixed
+     * @return array|null
      */
     public function fetchOne()
     {
-        return $this->execute()->fetch(\PDO::FETCH_ASSOC);
+        $sth = $this->execute();
+
+        return $sth ? $sth->fetch(\PDO::FETCH_ASSOC) : null;
     }
 
     /**
@@ -2319,9 +2323,9 @@ class Miner
 
         $sth = $q->execute();
 
-        return $many
+        return $sth ? ($many
             ? $sth->fetchAll(\PDO::FETCH_ASSOC)
-            : $sth->fetch(\PDO::FETCH_ASSOC);
+            : $sth->fetch(\PDO::FETCH_ASSOC)) : null;
     }
 
     /**
