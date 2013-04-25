@@ -19,7 +19,8 @@ class MinerServiceProvider implements ServiceProviderInterface
                 $app['db.password'],
                 array(
                     \PDO::ATTR_EMULATE_PREPARES => false,
-                    \PDO::ATTR_STRINGIFY_FETCHES => false
+                    \PDO::ATTR_STRINGIFY_FETCHES => false,
+                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
                 )
             );
 
