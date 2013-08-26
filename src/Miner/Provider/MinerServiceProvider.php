@@ -25,6 +25,7 @@ class MinerServiceProvider implements ServiceProviderInterface
             );
 
             $conn->exec('SET CHARACTER SET ' . (isset($app['db.charset']) ? $app['db.charset'] : 'UTF8'));
+            $conn->exec('SET NAMES  ' . (isset($app['db.names']) ? $app['db.names'] : 'UTF8'));
 
             return $conn;
         });
