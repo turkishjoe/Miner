@@ -14,7 +14,8 @@ class MinerFactory
 
     public function create()
     {
-        return new Miner($this->pdo);
+        $this->lastMinerObject = new Miner($this->pdo);
+        return  $this->lastMinerObject;
     }
     
     public function getLastMinerObject()
