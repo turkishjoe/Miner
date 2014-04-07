@@ -5,6 +5,8 @@ class MinerFactory
 {
     private $pdo;
 
+    private $lastMinerObject;
+
     public function __construct(\PDO $pdo)
     {
         $this->pdo = $pdo;
@@ -13,5 +15,10 @@ class MinerFactory
     public function create()
     {
         return new Miner($this->pdo);
+    }
+    
+    public function getLastMinerObject()
+    {
+        return $this->lastMinerObject;
     }
 }
