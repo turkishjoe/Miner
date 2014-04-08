@@ -2337,4 +2337,28 @@ class Miner
     {
         return $this->getStatement(false);
     }
+    
+    public function begin()
+    {
+        // Make sure the database is connected
+        $pdoConnection = $this->getPdoConnection();
+
+        return $pdoConnection->beginTransaction();
+    }
+
+    public function commit()
+    {
+        // Make sure the database is connected
+        $pdoConnection = $this->getPdoConnection();
+
+        return $pdoConnection->commit();
+    }
+
+    public function rollback()
+    {
+        // Make sure the database is connected
+        $pdoConnection = $this->getPdoConnection();
+
+        return $pdoConnection->rollBack();
+    }
 }
