@@ -298,7 +298,7 @@ namespace Miner;
      * @param  bool $autoQuote optional auto-escape values, default true
      * @return Miner
      */
-    public function __construct(PDO $PdoConnection = null, $autoQuote = true ) {
+    public function __construct(\PDO $PdoConnection = null, $autoQuote = true ) {
       $this->option = array();
       $this->select = array();
       $this->delete = array();
@@ -327,7 +327,7 @@ namespace Miner;
      * @param  PDO|null $PdoConnection optional PDO database connection
      * @return Miner
      */
-    public function setPdoConnection(PDO $PdoConnection = null) {
+    public function setPdoConnection(\PDO $PdoConnection = null) {
       $this->PdoConnection = $PdoConnection;
 
       return $this;
@@ -504,10 +504,25 @@ namespace Miner;
      * @param  string $alias optional alias
      * @return Miner
      */
-    public function select($column, $alias = null) {
-      $this->select[$column] = $alias;
+    public function select($column = null, $alias = null) {
+        if ($column === null) {
+            $column = '*';
+        }
 
-      return $this;
+        if (is_array($column)) {
+            foreach ($column as $col => $alias) {
+                if (is_numeric($col)) {
+                    $col = $alias;
+                }
+
+                $this->select[$col] = $alias;
+            }
+        } else {
+            $this->select[$column] = $alias;
+        }
+
+        return $this;
+
     }
 
     /**
@@ -2251,6 +2266,76 @@ namespace Miner;
     public function __toString() {
       return $this->getStatement(false);
     }
+
+      /**
+       * Fetch all as array
+       *
+       * @return array|null
+       */
+      public function fetchAll()
+      {
+          $sth = $this->execute();
+          return $sth ? $sth->fetchAll(\PDO::FETCH_ASSOC) : null;
+      }
+      /**
+       * Fetch one record as array
+       *
+       * @return array|null
+       */
+      public function fetchOne()
+      {
+          $sth = $this->execute();
+          return $sth ? $sth->fetch(\PDO::FETCH_ASSOC) : null;
+      }
+      /**
+       * Find and fetch records
+       *
+       * @param string              $table table name
+       * @param integer|array       $id    if integer given - find and fetch one record by id, else find by key=>value search criteria
+       * @param string|array|null   $what  select string '*' by default
+       *
+       * @return mixed
+       */
+      public function find($table, $id, $what = null)
+      {
+          $many = false;
+          $q = $this->select($what)->from($table);
+          if (is_numeric($id)) {
+              $q->where('id', $id);
+          } else if (is_array($id)) {
+              $many = true;
+              foreach ($id as $i => $value) {
+                  if (is_numeric($i)) {
+                      $q->whereIn('id', $id);
+                      break;
+                  }
+                  $q->andWhere($i, $value);
+              }
+          }
+          $sth = $q->execute();
+          return $sth ? ($many
+              ? $sth->fetchAll(\PDO::FETCH_ASSOC)
+              : $sth->fetch(\PDO::FETCH_ASSOC)) : null;
+      }
+
+      public function begin()
+      {
+          // Make sure the database is connected
+          $pdoConnection = $this->getPdoConnection();
+          return $pdoConnection->beginTransaction();
+      }
+      public function commit()
+      {
+          // Make sure the database is connected
+          $pdoConnection = $this->getPdoConnection();
+          return $pdoConnection->commit();
+      }
+      public function rollback()
+      {
+          // Make sure the database is connected
+          $pdoConnection = $this->getPdoConnection();
+          return $pdoConnection->rollBack();
+      }
 
   }
 
