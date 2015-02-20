@@ -11,8 +11,8 @@ namespace Miner;
    * @package   Miner
    * @version   0.10.0
    */
-  class Miner {
-
+class Miner
+{
     /**
      * INNER JOIN type.
      */
@@ -157,7 +157,6 @@ namespace Miner;
        *
        */
     const COLUMN_SELECT_ALL = '*';
-
     /**
      * PDO database connection to use in executing the statement.
      *
@@ -298,7 +297,7 @@ namespace Miner;
      * @param  bool $autoQuote optional auto-escape values, default true
      * @return Miner
      */
-    public function __construct(PDO $PdoConnection = null, $autoQuote = true ) {
+    public function __construct(\PDO $PdoConnection = null, $autoQuote = true ) {
       $this->option = array();
       $this->select = array();
       $this->delete = array();
@@ -327,7 +326,7 @@ namespace Miner;
      * @param  PDO|null $PdoConnection optional PDO database connection
      * @return Miner
      */
-    public function setPdoConnection(PDO $PdoConnection = null) {
+    public function setPdoConnection(\PDO $PdoConnection = null) {
       $this->PdoConnection = $PdoConnection;
 
       return $this;
@@ -385,7 +384,6 @@ namespace Miner;
     public function autoQuote($value, $override = null) {
       return $this->getAutoQuote($override) ? $this->quote($value) : $value;
     }
-
 
       /**
        * Check enabled mysql for column quote
@@ -533,8 +531,9 @@ namespace Miner;
      * @param  bool $includeText optional include 'SELECT' text, default true
      * @return string SELECT portion of the statement
      */
-    public function getSelectString($includeText = true, $isUsingColumnQuote = null ) {
-      $statement = "";
+    public function getSelectString($includeText = true, $isUsingColumnQuote = null)
+    {
+        $statement = '';
 
       if (!$this->select) {
         return $statement;
@@ -542,9 +541,8 @@ namespace Miner;
 
       $statement .= $this->getOptionsString(true);
 
-      foreach ($this->select as $column => $alias) {
-
-        $statement .= $this->getColumnString( $column, $isUsingColumnQuote );
+        foreach ($this->select as $column => $alias) {
+             $statement .= $this->getColumnString( $column, $isUsingColumnQuote );
 
         if ($alias) {
           $statement .= " AS " . $alias;
@@ -890,8 +888,9 @@ namespace Miner;
       $statement = "";
       $this->setPlaceholderValues = array();
 
-      foreach ($this->set as $set) {
-        $autoQuote = $this->getAutoQuote($set['quote']);
+      foreach ( $this->set as $set  )
+      {
+        $autoQuote = $this->getAutoQuote( $set['quote'] );
         if ($usePlaceholders && $autoQuote) {
           $statement .=  $this->getColumnString( $set['column'], $autoQuote ) . " " . self::EQUALS . " ?, ";
 
@@ -899,6 +898,13 @@ namespace Miner;
         }
         else {
           $statement .= $this->getColumnString( $set['column'], $autoQuote ) . " " . self::EQUALS . " " . $this->autoQuote($set['value'], $autoQuote) . ", ";
+            if ($usePlaceholders && $autoQuote) {
+                    $statement .=  $this->getColumnString( $set['column'], $autoQuote ) . " " . self::EQUALS . " ?, ";
+
+                $this->setPlaceholderValues[] = $set['value'];
+            } else {
+             $statement .= $this->getColumnString( $set['column'], $autoQuote ) . " " . self::EQUALS . " " . $this->autoQuote($set['value'], $autoQuote) . ", ";
+         }
         }
       }
 
@@ -1394,8 +1400,9 @@ namespace Miner;
           }
 
           $statement .= $this->getColumnString( $criterion['column'], $criterion['quote'] ) . " " . $criterion['operator'] . " " . $value;
+
+            }
         }
-      }
 
       return $statement;
     }
