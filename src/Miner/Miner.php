@@ -2251,12 +2251,82 @@ class Miner
     }
 
     /**
+     * Fetch all as array
+     *
+     * @return array|null
+     */
+    public function fetchAll()
+    {
+        $sth = $this->execute();
+        return $sth ? $sth->fetchAll(\PDO::FETCH_ASSOC) : null;
+    }
+    /**
+     * Fetch one record as array
+     *
+     * @return array|null
+     */
+    public function fetchOne()
+    {
+        $sth = $this->execute();
+        return $sth ? $sth->fetch(\PDO::FETCH_ASSOC) : null;
+    }
+    /**
+     * Find and fetch records
+     *
+     * @param string              $table table name
+     * @param integer|array       $id    if integer given - find and fetch one record by id, else find by key=>value search criteria
+     * @param string|array|null   $what  select string '*' by default
+     *
+     * @return mixed
+     */
+    public function find($table, $id, $what = null)
+    {
+        $many = false;
+        $q = $this->select($what)->from($table);
+        if (is_numeric($id)) {
+            $q->where('id', $id);
+        } else if (is_array($id)) {
+            $many = true;
+            foreach ($id as $i => $value) {
+                if (is_numeric($i)) {
+                    $q->whereIn('id', $id);
+                    break;
+                }
+                $q->andWhere($i, $value);
+            }
+        }
+        $sth = $q->execute();
+        return $sth ? ($many
+            ? $sth->fetchAll(\PDO::FETCH_ASSOC)
+            : $sth->fetch(\PDO::FETCH_ASSOC)) : null;
+    }
+    /**
      * Get the full SQL statement without value placeholders.
      *
      * @return string full SQL statement
      */
-    public function __toString() {
-      return $this->getStatement(false);
+    public function __toString()
+    {
+        return $this->getStatement(false);
+    }
+
+    public function begin()
+    {
+        // Make sure the database is connected
+        $pdoConnection = $this->getPdoConnection();
+        return $pdoConnection->beginTransaction();
+    }
+    public function commit()
+    {
+        // Make sure the database is connected
+        $pdoConnection = $this->getPdoConnection();
+        return $pdoConnection->commit();
+    }
+    public function rollback()
+    {
+        // Make sure the database is connected
+        $pdoConnection = $this->getPdoConnection();
+        return $pdoConnection->rollBack();
     }
 
   }
