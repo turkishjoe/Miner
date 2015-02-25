@@ -502,10 +502,21 @@ class Miner
      * @param  string $alias optional alias
      * @return Miner
      */
-    public function select($column, $alias = null) {
-      $this->select[$column] = $alias;
-
-      return $this;
+    public function select($column = null, $alias = null) {
+        if ($column === null) {
+            $column = self::COLUMN_SELECT_ALL;
+        }
+        if (is_array($column)) {
+            foreach ($column as $col => $alias) {
+                if (is_numeric($col)) {
+                    $col = $alias;
+                }
+                $this->select[$col] = $alias;
+            }
+        } else {
+            $this->select[$column] = $alias;
+        }
+        return $this;
     }
 
     /**
